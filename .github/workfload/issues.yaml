@@ -1,0 +1,29 @@
+name: Process new issues
+on:
+  issues:
+    types:
+      - opened
+
+jobs:
+  comment-on-new-issues:
+    name: Process new issues
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Comment on new issues
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('README.md', {encoding: 'utf8'});
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '# Welcome new contributor!\n${{ github.event.pull_request.title }}\n' + body
+            })
+
+            return true;
